@@ -83,7 +83,7 @@ terraform apply   # Deploy everything (confirm with "yes")
 ```
 
 ### 5. Destroy (IMPORTANT — to save credit)
-Whenever you are done working on the project, destroy the infrastructure. I don't think there is a way to stop the gateway and it is the most expensive component. I might update this sectin later.
+Whenever you are done working on the project, destroy the infrastructure. I don't think there is a way to stop the gateway and it is the most expensive resource of the project. I might update this section later.
 
 ```bash
 terraform destroy   # Tears down everything (confirm with "yes")

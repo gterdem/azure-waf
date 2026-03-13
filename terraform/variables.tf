@@ -53,3 +53,9 @@ variable "allowed_ssh_ip" {
   description = "Your public IP for SSH access"
   type        = string
 }
+
+variable "vm_zones" {
+  description = "Availability zones for the 2 web VMs. Change if a zone has capacity issues."
+  type        = list(string)
+  default     = ["2", "3"]
+}

@@ -1,0 +1,124 @@
+# ──────────────────────────────────────────────
+# WAF Policy
+# ──────────────────────────────────────────────
+# The WAF policy defines which rules are active and how they behave.
+# It's a separate resource from the Application Gateway so it can be
+# updated independently (e.g., switching modes) without recreating the gateway.
+#
+# We start in DETECTION mode — logs everything but blocks nothing.
+# This lets us identify false positives before switching to Prevention.
+
+resource "azurerm_web_application_firewall_policy" "main" {
+  name                = "wafpolicy-waf-project"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  # ── Policy Settings ──
+  policy_settings {
+    enabled                     = true
+    mode                        = "Detection" # Start here, switch to Prevention after tuning
+    request_body_check          = true
+    max_request_body_size_in_kb = 128
+    file_upload_limit_in_mb     = 100
+  }
+
+  # ── Managed Rules: OWASP CRS 3.2 ──
+  # These are pre-built detection rules maintained by Microsoft.
+  # All rule groups are enabled by default.
+  # We'll add exclusions later during tuning if we find false positives.
+  managed_rules {
+    managed_rule_set {
+      type    = "OWASP"
+      version = "3.2"
+      # All rule groups enabled by default — no overrides needed yet
+    }
+
+    # Microsoft Bot Manager — detects and blocks known bad bots
+    managed_rule_set {
+      type    = "Microsoft_BotManagerRuleSet"
+      version = "1.0"
+    }
+  }
+
+  # ── Custom Rule 1: Geo-Blocking (Priority 1) ──
+  # Block traffic from outside Canada and US.
+  # Evaluates first because it's the cheapest check.
+  custom_rules {
+    name      = "GeoBlockRule"
+    priority  = 1
+    rule_type = "MatchRule"
+    action    = "Block"
+
+    match_conditions {
+      match_variables {
+        variable_name = "RemoteAddr"
+      }
+      operator           = "GeoMatch"
+      negation_condition = true # Block if NOT in these countries
+      match_values       = ["CA", "US"]
+    }
+  }
+
+  # ── Custom Rule 2: Rate Limiting (Priority 2) ──
+  # Block any IP that sends more than 100 requests in 1 minute.
+  # Note: Azure WAF rate limit duration supports 1 or 5 minutes.
+  # We use 1 minute with threshold 100 for quicker detection.
+  custom_rules {
+    name                 = "RateLimitRule"
+    priority             = 2
+    rule_type            = "RateLimitRule"
+    action               = "Block"
+    rate_limit_duration  = "OneMin"
+    rate_limit_threshold = 100
+    group_rate_limit_by  = "ClientAddr"
+
+    match_conditions {
+      match_variables {
+        variable_name = "RemoteAddr"
+      }
+      operator           = "IPMatch"
+      negation_condition = true
+      match_values       = ["127.0.0.1"] # Match everything except localhost
+    }
+  }
+
+  # ── Custom Rule 3: IP Reputation Blocking (Priority 3) ──
+  # Block known malicious IPs and Tor exit nodes.
+  # In production, this list would be auto-refreshed.
+  # For the project, we use a sample of real Tor exit node IPs.
+  custom_rules {
+    name      = "IPReputationBlock"
+    priority  = 3
+    rule_type = "MatchRule"
+    action    = "Block"
+
+    match_conditions {
+      match_variables {
+        variable_name = "RemoteAddr"
+      }
+      operator     = "IPMatch"
+      match_values = [
+        # Sample Tor exit node IPs (replace with current ones from
+        #  curl -s https://raw.githubusercontent.com/SecOps-Institute/Tor-IP-Addresses/master/tor-exit-nodes.lst | head -15)
+        "101.99.92.179",
+        "101.99.92.182",
+        "101.99.92.194",
+        "101.99.92.198",
+        "102.130.113.9",
+        "102.130.127.117",
+        "103.106.3.94",
+        "103.109.101.105",
+        "103.126.161.54",
+        "103.129.222.46",
+        "103.126.161.54",
+        "103.163.218.11",
+        "103.172.134.26",
+        "103.193.179.233",
+        "103.196.37.111",
+        "103.208.86.5"
+      ]
+    }
+  }
+
+  tags = azurerm_resource_group.main.tags
+}
