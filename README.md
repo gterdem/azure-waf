@@ -17,6 +17,9 @@ This project deploys a complete WAF environment on Azure using Terraform:
 
 ![Architecture Diagram](diagrams/azure_WAF_architecture_diagram.png)
 
+## Network Flow Diagram
+
+![Architecture Diagram](diagrams/network_traffic_flow_diagram.png)
 
 ## Prerequisites
 
