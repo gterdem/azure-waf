@@ -1,0 +1,48 @@
+# ──────────────────────────────────────────────
+# Terraform
+# ──────────────────────────────────────────────
+# State files contain sensitive data (resource IDs, IPs, etc.)
+*.tfstate
+*.tfstate.*
+
+# Variables file contains YOUR subscription ID and IP — never share this
+terraform.tfvars
+
+# Terraform downloads provider binaries here (~200MB) — not needed in Git
+.terraform/
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Plan output files (may contain secrets)
+*.tfplan
+
+# Override files (local-only customization)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ──────────────────────────────────────────────
+# macOS / Linux / Windows
+# ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ──────────────────────────────────────────────
+# Python (for FireWatch module)
+# ──────────────────────────────────────────────
+__pycache__/
+*.pyc
+.env
+venv/
+
+# ──────────────────────────────────────────────
+# IDE
+# ──────────────────────────────────────────────
+.vscode/
+.idea/
