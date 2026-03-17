@@ -4,9 +4,6 @@
 # The WAF policy defines which rules are active and how they behave.
 # It's a separate resource from the Application Gateway so it can be
 # updated independently (e.g., switching modes) without recreating the gateway.
-#
-# We start in DETECTION mode — logs everything but blocks nothing.
-# This lets us identify false positives before switching to Prevention.
 
 resource "azurerm_web_application_firewall_policy" "main" {
   name                = "wafpolicy-waf-project"
@@ -16,21 +13,30 @@ resource "azurerm_web_application_firewall_policy" "main" {
   # ── Policy Settings ──
   policy_settings {
     enabled                     = true
-    mode                        = "Detection" # Start here, switch to Prevention after tuning
+    mode                        = "Prevention"
     request_body_check          = true
     max_request_body_size_in_kb = 128
     file_upload_limit_in_mb     = 100
   }
-
-  # ── Managed Rules: OWASP CRS 3.2 ──
-  # These are pre-built detection rules maintained by Microsoft.
-  # All rule groups are enabled by default.
-  # We'll add exclusions later during tuning if we find false positives.
+  
+  # ── Managed Rules ──
   managed_rules {
+
     managed_rule_set {
       type    = "OWASP"
       version = "3.2"
-      # All rule groups enabled by default — no overrides needed yet
+
+      # Disable rule 920350: "Host header is a numeric IP address"
+      # We access Juice Shop via IP (no domain name in a student project),
+      # so every request triggers this rule. This is a known false positive
+      # when using IP-based access instead of a domain name.
+      rule_group_override {
+        rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+        rule {
+          id      = "920350"
+          enabled = false
+        }
+      }
     }
 
     # Microsoft Bot Manager — detects and blocks known bad bots
@@ -60,9 +66,6 @@ resource "azurerm_web_application_firewall_policy" "main" {
   }
 
   # ── Custom Rule 2: Rate Limiting (Priority 2) ──
-  # Block any IP that sends more than 100 requests in 1 minute.
-  # Note: Azure WAF rate limit duration supports 1 or 5 minutes.
-  # We use 1 minute with threshold 100 for quicker detection.
   custom_rules {
     name                 = "RateLimitRule"
     priority             = 2
