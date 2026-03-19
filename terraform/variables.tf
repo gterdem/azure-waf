@@ -59,3 +59,9 @@ variable "vm_zones" {
   type        = list(string)
   default     = ["2", "3"]
 }
+
+variable "ssh_public_key_path" {
+  description = "Path to your SSH public key file. Generate one with: ssh-keygen -t ed25519"
+  type        = string
+  default     = "~/.ssh/id_ed25519.pub"
+}

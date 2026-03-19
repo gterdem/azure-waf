@@ -18,7 +18,7 @@ resource "azurerm_web_application_firewall_policy" "main" {
     max_request_body_size_in_kb = 128
     file_upload_limit_in_mb     = 100
   }
-  
+
   # ── Managed Rules ──
   managed_rules {
 
@@ -44,11 +44,10 @@ resource "azurerm_web_application_firewall_policy" "main" {
       type    = "Microsoft_BotManagerRuleSet"
       version = "1.0"
     }
+
   }
 
   # ── Custom Rule 1: Geo-Blocking (Priority 1) ──
-  # Block traffic from outside Canada and US.
-  # Evaluates first because it's the cheapest check.
   custom_rules {
     name      = "GeoBlockRule"
     priority  = 1
@@ -60,7 +59,7 @@ resource "azurerm_web_application_firewall_policy" "main" {
         variable_name = "RemoteAddr"
       }
       operator           = "GeoMatch"
-      negation_condition = true # Block if NOT in these countries
+      negation_condition = true
       match_values       = ["CA", "US"]
     }
   }
@@ -81,14 +80,11 @@ resource "azurerm_web_application_firewall_policy" "main" {
       }
       operator           = "IPMatch"
       negation_condition = true
-      match_values       = ["127.0.0.1"] # Match everything except localhost
+      match_values       = ["127.0.0.1"]
     }
   }
 
   # ── Custom Rule 3: IP Reputation Blocking (Priority 3) ──
-  # Block known malicious IPs and Tor exit nodes.
-  # In production, this list would be auto-refreshed.
-  # For the project, we use a sample of real Tor exit node IPs.
   custom_rules {
     name      = "IPReputationBlock"
     priority  = 3
