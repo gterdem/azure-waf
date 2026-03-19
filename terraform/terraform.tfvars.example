@@ -1,0 +1,32 @@
+# ──────────────────────────────────────────────
+# Personal Configuration
+# ──────────────────────────────────────────────
+# Copy this file to terraform.tfvars and fill in your values:
+#   cp terraform.tfvars.example terraform.tfvars
+#
+# NEVER commit terraform.tfvars to Git — it contains your personal details.
+# ──────────────────────────────────────────────
+
+# Your Azure subscription ID
+# Find it:  az account show --query id -o tsv
+subscription_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+# Your public IP address (for SSH access to VMs)
+# Find it:
+#   macOS/Linux/WSL:  curl -s ifconfig.me
+#   PowerShell:       Invoke-RestMethod ifconfig.me
+allowed_ssh_ip = "0.0.0.0"
+
+# Path to your SSH public key
+# Don't have one? Generate it:
+#   ssh-keygen -t ed25519 -C "your-email@example.com"
+#
+# Then set the path:
+#   Windows (PowerShell): "C:/Users/YourName/.ssh/id_ed25519.pub"  (use forward slashes!)
+#   Windows (Git Bash):   "~/.ssh/id_ed25519.pub"
+#   macOS/Linux/WSL:      "~/.ssh/id_ed25519.pub"
+ssh_public_key_path = "~/.ssh/id_ed25519.pub"
+
+# Availability zones for VMs
+# If you get ZonalAllocationFailed, change to different zones:
+# vm_zones = ["1", "3"]
