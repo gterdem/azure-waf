@@ -343,14 +343,31 @@ main.tf (resource group)
 ## Troubleshooting
 
 **`ZonalAllocationFailed`** — Azure has no capacity for B1s in the requested zone.
-- Fix: Change `vm_zones` in `terraform.tfvars` to different zones (e.g., `["1", "3"]` or `["2", "3"]`).
+- **Fix:** Change `vm_zones` in `terraform.tfvars` to different zones (e.g., `["1", "3"]` or `["2", "3"]`).
 
 **`ConflictingConcurrentWriteNotAllowed`** — Azure resource provider registration throttled.
-- Fix: Already handled by `resource_provider_registrations = "none"` in main.tf. Providers are registered manually once.
+- **Fix:** Already handled by `resource_provider_registrations = "none"` in main.tf. Providers are registered manually once.
 
 **VMs show Unhealthy in backend pool** — Cloud-init hasn't finished yet.
 - Fix: Wait 3-4 minutes after `terraform apply`. Juice Shop Docker image takes time to download.
 
 **`terraform import` needed after state issues** — VM exists in Azure but not in Terraform state.
-- Fix: `terraform import "azurerm_linux_virtual_machine.web[0]" "/subscriptions/.../virtualMachines/vm-web-01"`
+- **Fix:** 
+```
+terraform import "azurerm_linux_virtual_machine.web[0]" "/subscriptions/.../virtualMachines/vm-web-01"
+```
 - The `lifecycle { ignore_changes = [custom_data] }` block prevents replacement after import.
+
+**`Already exists`** — error for diagnostic setting: is a known Azure behavior — diagnostic settings can survive resource group deletion. 
+```
+Error: a resource with the ID "/subscriptions/<YOUR_SUB_ID>/resourceGroups/rg-waf-project/providers/Microsoft.Network/applicationGateways/appgw-waf|diag-appgw-to-law" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_monitor_diagnostic_setting" for more information
+│
+│   with azurerm_monitor_diagnostic_setting.appgw,
+│   on monitoring.tf line 28, in resource "azurerm_monitor_diagnostic_setting" "appgw":
+│   28: resource "azurerm_monitor_diagnostic_setting" "appgw" {
+```
+- **Fix:** 
+```bash
+terraform import azurerm_monitor_diagnostic_setting.appgw "/subscriptions/<YOUR_SUB_ID>/resourceGroups/rg-waf-project/providers/Microsoft.Network/applicationGateways/appgw-waf|diag-appgw-to-law" 
+```
+then terraform apply.
