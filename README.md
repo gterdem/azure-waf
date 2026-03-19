@@ -1,4 +1,4 @@
-# Cloud-Based Web Application Firewall (WAF) — Azure
+# Azure Cloud-Based Web Application Firewall (WAF)
 
 A hands-on cloud security project deploying an Azure Application Gateway with WAF v2 to protect a vulnerable web application (OWASP Juice Shop). 
 
@@ -11,7 +11,7 @@ This project deploys a complete WAF environment on Azure using Terraform:
 - **Managed rules** (OWASP CRS 3.2) blocking SQL injection, XSS, and other OWASP Top 10 attacks
 - **Custom rules** for geo-blocking, rate limiting, and IP reputation blocking
 - **Azure Monitor + Log Analytics** for logging, dashboards, and alerting
-- **FireWatch AI module** (Python) for intelligent threat analysis beyond what rules catch
+- **FireWatch AI application** (Python) for intelligent threat analysis beyond what rules catch
 
 ## Architecture
 
