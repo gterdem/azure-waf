@@ -1,6 +1,6 @@
 # Cloud-Based Web Application Firewall (WAF) — Azure
 
-A hands-on cloud security project deploying an Azure Application Gateway with WAF v2 to protect a vulnerable web application (OWASP Juice Shop). Built for the INFT1201 Cybersecurity course at Toronto Metropolitan University.
+A hands-on cloud security project deploying an Azure Application Gateway with WAF v2 to protect a vulnerable web application (OWASP Juice Shop). 
 
 ## What This Project Does
 
