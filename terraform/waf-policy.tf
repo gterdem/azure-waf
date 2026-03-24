@@ -64,7 +64,9 @@ resource "azurerm_web_application_firewall_policy" "main" {
     }
   }
 
-  # ── Custom Rule 2: Rate Limiting (Priority 2) ──
+# ── Custom Rule 2: Rate Limiting (Priority 2) ──
+  # Excludes socket.io polling (Juice Shop WebSocket) to prevent
+  # false positives from legitimate real-time connections.
   custom_rules {
     name                 = "RateLimitRule"
     priority             = 2
@@ -81,6 +83,15 @@ resource "azurerm_web_application_firewall_policy" "main" {
       operator           = "IPMatch"
       negation_condition = true
       match_values       = ["127.0.0.1"]
+    }
+
+    match_conditions {
+      match_variables {
+        variable_name = "RequestUri"
+      }
+      operator           = "Contains"
+      negation_condition = true
+      match_values       = ["socket.io"]
     }
   }
 
