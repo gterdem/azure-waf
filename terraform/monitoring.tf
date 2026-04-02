@@ -7,7 +7,7 @@
 # all attack evidence comes from.
 
 resource "azurerm_log_analytics_workspace" "main" {
-  name                = "law-waf-project"
+  name                = "law-waf-project-v2"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   sku                 = "PerGB2018" # Pay per GB ingested — cheapest for low volume
